@@ -454,7 +454,32 @@ namespace Microsoft.Data.Analysis
 
                     if (header)
                     {
-                        var headerColumns = string.Join(separator.ToString(), columnNames);
+                        bool firstColumn = true;
+                        var headerColumns = new StringBuilder();
+                        foreach (string name in columnNames)
+                        {
+                            if (!firstColumn)
+                            {
+                                headerColumns.Append(separator);
+                            }
+                            else
+                            {
+                                firstColumn = false;
+                            }
+
+                            // TODO why doesn't Contains(char) work? 
+                            bool needsQuotes = ((string)name).Contains(separator.ToString()) || ((string)name).Contains("\n");
+                            if (needsQuotes)
+                            {
+                                headerColumns.Append("\"");
+                                headerColumns.Append(name);
+                                headerColumns.Append("\"");
+                            }
+                            else
+                            {
+                                headerColumns.Append(name);
+                            }
+                        }
                         csvFile.WriteLine(headerColumns);
                     }
 
@@ -462,16 +487,16 @@ namespace Microsoft.Data.Analysis
 
                     foreach (var row in dataFrame.Rows)
                     {
-                        bool firstRow = true;
+                        bool firstCell = true;
                         foreach (var cell in row)
                         {
-                            if (!firstRow)
+                            if (!firstCell)
                             {
                                 record.Append(separator);
                             }
                             else
                             {
-                                firstRow = false;
+                                firstCell = false;
                             }
 
                             Type t = cell?.GetType();
@@ -498,6 +523,19 @@ namespace Microsoft.Data.Analysis
                             {
                                 record.AppendFormat(cultureInfo, "{0:G31}", cell);
                                 continue;
+                            }
+
+                            if (t == typeof(string))
+                            {
+                                // TODO why doesn't Contains(char) work? 
+                                bool needsQuotes = ((string)cell).Contains(separator.ToString()) || ((string)cell).Contains("\n");
+                                if (needsQuotes)
+                                {
+                                    record.Append("\"");
+                                    record.Append(cell);
+                                    record.Append("\"");
+                                    continue;
+                                }
                             }
 
                             record.Append(cell);
