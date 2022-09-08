@@ -390,6 +390,58 @@ CMT,1,1,181,0.6,CSH,4.5";
         }
 
         [Fact]
+        public void TestReadCsvGuessTypes()
+        {
+            string data = @"Strings,Ints,Floats,Bools,DateTimes
+40,289203891,40,true,1-june-2020
+true,34,0.87,false,1-august-2020
+TEST,3002,2.87,  True  ,1-june-2023";
+
+            void Verify(DataFrame df)
+            {
+                Assert.Equal(3, df.Rows.Count);
+                Assert.Equal(5, df.Columns.Count);
+
+                Assert.Equal(typeof(string), df.Columns[0].DataType);
+                Assert.Equal(typeof(int), df.Columns[1].DataType);
+                Assert.Equal(typeof(float), df.Columns[2].DataType);
+                Assert.Equal(typeof(bool), df.Columns[3].DataType);
+                Assert.Equal(typeof(DateTime), df.Columns[4].DataType);
+
+                Assert.Equal("Strings", df.Columns[0].Name);
+                Assert.Equal("Ints", df.Columns[1].Name);
+                Assert.Equal("Floats", df.Columns[2].Name);
+                Assert.Equal("Bools", df.Columns[3].Name);
+                Assert.Equal("DateTimes", df.Columns[4].Name);
+                VerifyColumnTypes(df);
+
+                var dfRow = df.Rows[0];
+                Assert.Equal("40", dfRow[0]);
+                Assert.Equal(289203891, dfRow[1]);
+                Assert.Equal(40f, dfRow[2]);
+                Assert.Equal(true, dfRow[3]);
+                Assert.Equal(new DateTime(2020, 06, 01), dfRow[4]);
+
+                dfRow = df.Rows[1];
+                Assert.Equal("true", dfRow[0]);
+                Assert.Equal(34, dfRow[1]);
+                Assert.Equal(0.87f, dfRow[2]);
+                Assert.Equal(false, dfRow[3]);
+                Assert.Equal(new DateTime(2020, 08, 01), dfRow[4]);
+
+                dfRow = df.Rows[2];
+                Assert.Equal("TEST", dfRow[0]);
+                Assert.Equal(3002, dfRow[1]);
+                Assert.Equal(2.87f, dfRow[2]);
+                Assert.Equal(true, dfRow[3]);
+                Assert.Equal(new DateTime(2023, 06, 01), dfRow[4]);
+            }
+
+            DataFrame df = DataFrame.LoadCsvFromString(data);
+            Verify(df);
+        }
+
+        [Fact]
         public void TestReadCsvWithTypesDateTime()
         {
             string data = @"vendor_id,rate_code,passenger_count,trip_time_in_secs,trip_distance,payment_type,fare_amount,date
@@ -781,9 +833,9 @@ CMT,1,1,null";
                 Assert.Equal(4, df.Columns.Count);
 
                 Assert.True(typeof(string) == df.Columns[0].DataType);
-                Assert.True(typeof(float) == df.Columns[1].DataType);
-                Assert.True(typeof(float) == df.Columns[2].DataType);
-                Assert.True(typeof(float) == df.Columns[3].DataType);
+                Assert.True(typeof(int) == df.Columns[1].DataType);
+                Assert.True(typeof(int) == df.Columns[2].DataType);
+                Assert.True(typeof(int) == df.Columns[3].DataType);
 
                 Assert.Equal("vendor_id", df.Columns[0].Name);
                 Assert.Equal("rate_code", df.Columns[1].Name);

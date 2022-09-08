@@ -40,6 +40,13 @@ namespace Microsoft.Data.Analysis
                         ++nbline;
                         continue;
                     }
+                    bool intParse = int.TryParse(val, out int intResult);
+                    if (intParse)
+                    {
+                        res = DetermineType(nbline == 0, typeof(int), res);
+                        ++nbline;
+                        continue;
+                    }
                     bool floatParse = float.TryParse(val, out float floatResult);
                     if (floatParse)
                     {
@@ -76,6 +83,8 @@ namespace Microsoft.Data.Analysis
                 return typeof(string);
             if (a == typeof(float) || b == typeof(float))
                 return typeof(float);
+            if (a == typeof(int) || b == typeof(int))
+                return typeof(int);
             if (a == typeof(bool) || b == typeof(bool))
                 return typeof(bool);
             if (a == typeof(DateTime) || b == typeof(DateTime))
